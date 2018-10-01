@@ -37,14 +37,17 @@ The elements of structs and arrays are stored after each other, just as if they 
 Due to their unpredictable size, mapping and dynamically-sized array types use a Keccak-256 hash
 computation to find the starting position of the value or the array data. These starting positions are always full stack slots.
 
+Mappings and Dynamic Arrays
+===========================
+
 The mapping or the dynamic array itself
 occupies an (unfilled) slot in storage at some position ``p`` according to the above rule (or by
-recursively applying this rule for mappings to mappings or arrays of arrays). For a dynamic array, this slot stores the number of elements in the array (byte arrays and strings are an exception here, see below). For a mapping, the slot is unused (but it is needed so that two equal mappings after each other will use a different hash distribution).
-Array data is located at ``keccak256(p)`` and the value corresponding to a mapping key
+recursively applying this rule for mappings of mappings or arrays of arrays). For dynamic arrays,
+this slot stores the number of elements in the array (byte arrays and strings are an exception here, see :ref:`below <bytes-and-string>`).
+For mappings, the slot is unused (but it is needed so that two equal mappings after each other will use a different
+hash distribution). Array data is located at ``keccak256(p)`` and the value corresponding to a mapping key
 ``k`` is located at ``keccak256(k . p)`` where ``.`` is concatenation. If the value is again a
 non-elementary type, the positions are found by adding an offset of ``keccak256(k . p)``.
-
-``bytes`` and ``string`` store their data in the same slot where also the length is stored if they are short. In particular: If the data is at most ``31`` bytes long, it is stored in the higher-order bytes (left aligned) and the lowest-order byte stores ``length * 2``. If it is longer, the main slot stores ``length * 2 + 1`` and the data is stored as usual in ``keccak256(slot)``.
 
 So for the following contract snippet::
 
@@ -57,6 +60,21 @@ So for the following contract snippet::
     }
 
 The position of ``data[4][9].b`` is at ``keccak256(uint256(9) . keccak256(uint256(4) . uint256(1))) + 1``.
+
+.. _bytes-and-string:
+
+``bytes`` and ``string``
+------------------------
+
+``bytes`` and ``string`` are encoded identically. For short byte arrays, they store their data in the same
+slot where also the length is stored. In particular: if the data is at most ``31`` bytes long, it is stored
+in the higher-order bytes (left aligned) and the lowest-order byte stores ``length * 2``.
+For long byte arrays, the main slot stores ``length * 2 + 1`` and the data is stored as usual in ``keccak256(slot)``.
+This means that a short array can be distinguished from a long array by checking if the lowest bit is set:
+short (not set) and long (set).
+
+.. note::
+  Handling invalid encoded slots is currently not supported but may be added in the future.
 
 .. index: memory layout
 
