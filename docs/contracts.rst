@@ -746,8 +746,8 @@ converted to ``uint8``.
 Events
 ******
 
-Events allow you to use the EVM logging facilities to "call" JavaScript
-callbacks in the user interface of a dapp, which listen for these events.
+Solidity events give an abstraction on top of the EVM's logging functionality.
+Applications can subscribe and listen to these events through the RPC interface of an Ethereum client.
 
 Events are inheritable members of contracts. When you call them, they cause the
 arguments to be stored in the transaction's log - a special data structure
@@ -763,7 +763,7 @@ that the log actually exists inside the blockchain. You have to supply block hea
 because the contract can only see the last 256 block hashes.
 
 You can add the attribute ``indexed`` to up to three parameters which adds them
-to a special data structure known as :ref:`"topics" <events_topics>` instead of
+to a special data structure known as :ref:`"topics" <abi_events>` instead of
 the data part of the log. If you use arrays (including ``string`` and ``bytes``)
 as indexed arguments, its Keccak-256 hash is stored as a topic instead, this is
 because a topic can only hold a single word (32 bytes).
