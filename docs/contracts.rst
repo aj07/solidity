@@ -775,17 +775,27 @@ Topics allow you to search for events, for example when filtering a sequence of
 blocks for certain events. You can also filter events by the address of the
 contract that emitted the event.
 
-For example, the code below uses the JSON RPC ``eth_getFilterChanges``
-`method <https://github.com/ethereum/wiki/wiki/JSON-RPC#returns-42>`_ to filter
+For example, the code below uses the web3.js ``subscribe(“logs”)``
+`method <https://web3js.readthedocs.io/en/1.0/web3-eth-subscribe.html#subscribe-logs>`_ to filter
 logs that match a topic with a certain address value:
 
-.. code-block:: json
+.. code-block:: javascript
 
-  {
-    "params": [{
-      "topics":   ["0x000…000c", null, null]
-    }]
-  }
+    var options = {
+        fromBlock: 0,
+        address: web3.eth.defaultAccount,
+        topics: ["0x0000000000000000000000000000000000000000000000000000000000000000", null, null]
+    };
+    web3.eth.subscribe('logs', options, function (error, result) {
+        if (!error)
+            console.log(result);
+    })
+        .on("data", function (log) {
+            console.log(log);
+        })
+        .on("changed", function (log) {
+    });
+
 
 The hash of the signature of the event is one of the topics, except if you
 declared the event with the ``anonymous`` specifier. This means that it is
