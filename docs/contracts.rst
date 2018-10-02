@@ -889,7 +889,6 @@ Additional Resources for Understanding Events
 - `Javascript documentation <https://github.com/ethereum/wiki/wiki/JavaScript-API#contract-events>`_
 - `Example usage of events <https://github.com/debris/smart-exchange/blob/master/lib/contracts/SmartExchange.sol>`_
 - `How to access them in js <https://github.com/debris/smart-exchange/blob/master/lib/exchange_transactions.js>`_
-- `How Solidity Events Are Implemented (blog post) <https://blog.qtum.org/how-solidity-events-are-implemented-diving-into-the-ethereum-vm-part-6-30e07b3037b9>`_
 
 .. index:: ! inheritance, ! base class, ! contract;base, ! deriving
 
