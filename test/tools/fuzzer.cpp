@@ -28,6 +28,7 @@
 #include <boost/program_options.hpp>
 
 #include <string>
+#include <sstream>
 #include <iostream>
 
 using namespace std;
@@ -48,15 +49,17 @@ string contains(string const& _haystack, vector<string> const& _needles)
 	return "";
 }
 
-void testConstantOptimizer()
+void testConstantOptimizer(const string& input)
 {
 	if (!quiet)
 		cout << "Testing constant optimizer" << endl;
 	vector<u256> numbers;
-	while (!cin.eof())
+	stringstream sin(input);
+
+	while (!sin.eof())
 	{
 		h256 data;
-		cin.read(reinterpret_cast<char*>(data.data()), 32);
+		sin.read(reinterpret_cast<char*>(data.data()), 32);
 		numbers.push_back(u256(data));
 	}
 	if (!quiet)
@@ -108,20 +111,18 @@ void runCompiler(string input)
 		}
 }
 
-void testStandardCompiler()
+void testStandardCompiler(string const& input)
 {
 	if (!quiet)
 		cout << "Testing compiler via JSON interface." << endl;
-	string input = readStandardInput();
 
 	runCompiler(input);
 }
 
-void testCompiler(bool optimize)
+void testCompiler(string const& input, bool optimize)
 {
 	if (!quiet)
 		cout << "Testing compiler " << (optimize ? "with" : "without") << " optimizer." << endl;
-	string input = readStandardInput();
 
 	Json::Value config = Json::objectValue;
 	config["language"] = "Solidity";
@@ -157,6 +158,11 @@ Allowed options)",
 		("help", "Show this help screen.")
 		("quiet", "Only output errors.")
 		(
+			"input-file",
+			po::value<string>()->default_value(""),
+			"Input source filename."
+		)
+		(
 			"standard-json",
 			"Test via the standard-json interface, i.e. "
 			"input is expected to be JSON-encoded instead of "
@@ -185,17 +191,23 @@ Allowed options)",
 		return 1;
 	}
 
+	string input;
+	if (arguments.count("input-file"))
+		input = readFileAsString(arguments["input-file"].as<string>());
+	else
+		input = readStandardInput();
+
 	if (arguments.count("quiet"))
 		quiet = true;
 
 	if (arguments.count("help"))
 		cout << options;
 	else if (arguments.count("const-opt"))
-		testConstantOptimizer();
+		testConstantOptimizer(input);
 	else if (arguments.count("standard-json"))
-		testStandardCompiler();
+		testStandardCompiler(input);
 	else
-		testCompiler(!arguments.count("without-optimizer"));
+		testCompiler(input, !arguments.count("without-optimizer"));
 
 	return 0;
 }
